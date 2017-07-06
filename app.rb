@@ -21,7 +21,7 @@ post '/:route' do |route|
   post_body ||= {}
   response_body = { route: params[:route] }.merge(post_headers).merge({ request_body: post_body })
 
-  logger.info response
+  logger.info response_body
 
   response.write response_body.to_json
 end
