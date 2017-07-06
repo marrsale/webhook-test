@@ -1,21 +1,27 @@
 require 'sinatra'
 require 'json'
 
+require 'pry'
+
 post '/:route' do |route|
   logger.info "POST received at #{route}"
 
   begin
-    post_params  = JSON.parse(request.body.read)
-    post_headers = %i(content_type request_method)
+    post_headers = %i(content_type request_method).map do |header_key|
+      { header_key => request.send(header_key) }
+    end.reduce(:merge)
+
+    body         = request.body.read
+    post_body    = JSON.parse(body) rescue body
   rescue => e
     logger.info "Could not parse POST body: #{e.message}"
   end
 
-  post_params ||= {}
   post_headers ||= {}
-  response_body = post_headers.merge(params).merge(post_params)
+  post_body ||= {}
+  response_body = { route: params[:route] }.merge(post_headers).merge({ request_body: post_body })
 
   logger.info response
 
-  response.write response_body.to_s
+  response.write response_body.to_json
 end
