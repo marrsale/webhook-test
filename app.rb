@@ -7,7 +7,8 @@ get '/' do
   'Awake!'
 end
 
-post /.*/ do |route|
+post /.*/ do
+  route = request.path_info
   logger.info "POST received at #{route}"
 
   begin
@@ -23,7 +24,7 @@ post /.*/ do |route|
 
   post_headers ||= { error: 'there was an error retrieving post headers' }
   post_body ||= { error: 'there was an error reading the post body' }
-  response_body = { route: params[:route] }.merge(post_headers).merge({ request_body: post_body })
+  response_body = { route: route }.merge(post_headers).merge({ request_body: post_body })
 
   logger.info response_body
 
